@@ -1,0 +1,8 @@
+GetLeagueTableIntent league table
+GetLeagueTableIntent what's the league table
+GetLeagueTableIntent tell me the league table
+GetLeagueTableIntent who's leading the league?
+
+GetNextTableIntent yes
+GetNextTableIntent yup
+GetNextTableIntent ok
