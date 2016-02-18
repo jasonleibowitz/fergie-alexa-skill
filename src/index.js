@@ -1,10 +1,5 @@
 var APP_ID = "amzn1.echo-sdk-ams.app.aab15ddb-1a64-4250-962d-6a8d8c038e64";
-var LEAGUE_TABLE = [
-    "test line one",
-    "test line two",
-    "test line three",
-    "test line four"
-];
+var POSITION_KEY = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "last"];
 
 var AlexaSkill = require('./AlexaSkill');
 var http = require('http');
@@ -36,8 +31,7 @@ Fergie.prototype.intentHandlers = {
     },
 
     "GetNextTableIntent": function(intent, session, response) {
-        session.index + 4;
-        handleLeagueTableRequest(intent, session, response);
+        handleNextTableRequest(intent, session, response);
     },
 
     "AMAZON.HelpIntent": function(intent, session, response) {
@@ -74,18 +68,17 @@ function getWelcomeResponse(response) {
 
 function handleLeagueTableRequest(intent, session, response) {
     var repromptText = "With Fergie, you can get all kinds of information on the English Premier League. Ask me about the current league table, what matches are on this week, when the next match for a particular team is, or what the score of the last match for a particular team was.";
-    var positionKey = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
     var sessionAttributes = {};
-    sessionAttributes.index = typeof (session.index === undefined) ? paginationSize : session.index;
+    sessionAttributes.index = paginationSize;
 
-    var prefixContent = "<p>The top four of the Premier League Table are</p>";
-    var cardContent = "The top four of the Premier League Table are";
+    var prefixContent = "<p>The top four of the Premier League Table are: </p>";
+    var cardContent = "The top four of the Premier League Table are: ";
     var cardTitle = "Premier League Table: Top 4";
 
     getTableFromAPI(function(table) {
         var speechText = "";
         var i;
-        sessionAttributes.text = table;
+        sessionAttributes.table = table;
         session.attributes = sessionAttributes;
         if (table.length == 0) {
             speechText = "There is a problem connecting to the API. Please try again later.";
@@ -94,7 +87,7 @@ function handleLeagueTableRequest(intent, session, response) {
         } else {
             for (i = 0; i < paginationSize; i++) {
                 cardContent = cardContent + table[i].teamName + ' ';
-                speechText = "<p>" + speechText + "In " + positionKey[i] + " place is " +  table[i].teamName + " with " + table[i].points + " points." + "</p>";
+                speechText = "<p>" + speechText + "In " + POSITION_KEY[i] + " place is " +  table[i].teamName + " with " + table[i].points + " points.</p>";
             }
             speechText = speechText + " <p>Want to hear more?</p>";
             var speechOutput = {
@@ -108,6 +101,45 @@ function handleLeagueTableRequest(intent, session, response) {
             response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
         }
     });
+}
+
+function handleNextTableRequest(intent, session, response) {
+    var repromptText = "With Fergie, you can get all kinds of information on the English Premier League. Ask me about the current league table, what matches are on this week, when the next match for a particular team is, or what the score of the last match for a particular team was.";
+    var sessionAttributes = {};
+    sessionAttributes.start = session.attributes.index > 0 ? session.attributes.index : 0;
+    sessionAttributes.index = session.attributes.index > 0 ? session.attributes.index + paginationSize : paginationSize;
+    sessionAttributes.table = session.attributes.table;
+    session.attributes = sessionAttributes;
+    var prefixContent = sessionAttributes.index < 16 ? "<p>The next four of the Premier League Table are: </p>" : "<p>The bottom of the table are: </p>";
+    var cardContent = "The next four of the Premier League Table are: ";
+    var cardTitle = "Premier League Table: " + sessionAttributes.index + 1 + " - " + sessionAttributes.index + 5;
+    var speechText = "";
+    var i;
+
+    if (sessionAttributes.table == 0) {
+        speechText = "There is a problem connecting to the API. Please try again later.";
+        cardContent = speechText;
+        response.tell(speechText);
+    } else {
+        for (i = sessionAttributes.start; i < sessionAttributes.index; i++) {
+            cardContent = cardContent + sessionAttributes.table[i].teamName + ' ';
+            speechText = "<p>" + speechText + "In " + POSITION_KEY[i] + " place is " + sessionAttributes.table[i].teamName + " with " + session.attributes.table[i].points + " points.</p>";
+        }
+        if (sessionAttributes.index < 20) speechText = speechText + "<p>Want to hear more?</p>";
+        var speechOutput = {
+            speech: "<speak>" + prefixContent + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.SSML
+        };
+        var repromptOutput = {
+            speech: repromptText,
+            type: AlexaSkill.speechOutputType.PLAIN_TEXT
+        };
+        if (sessionAttributes.start < 16) {
+            response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
+        } else {
+            response.tell(speechOutput, repromptOutput, cardTitle, cardContent);
+        }
+    }
 }
 
 function getTableFromAPI(eventCallback) {

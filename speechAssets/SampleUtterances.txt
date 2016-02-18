@@ -1,8 +1,13 @@
 GetLeagueTableIntent league table
 GetLeagueTableIntent what's the league table
 GetLeagueTableIntent tell me the league table
-GetLeagueTableIntent who's leading the league?
+GetLeagueTableIntent who's leading the league
 
 GetNextTableIntent yes
 GetNextTableIntent yup
 GetNextTableIntent ok
+
+AMAZON.StopIntent no
+AMAZON.StopIntent nope
+AMAZON.StopIntent no thanks
+AMAZON.StopIntent no thank you
