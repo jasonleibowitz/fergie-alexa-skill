@@ -7,6 +7,10 @@ GetNextTableIntent yes
 GetNextTableIntent yup
 GetNextTableIntent ok
 
+GetNextMatch when is the next {Team} match
+GetNextMatch next {Team} match
+GetNextMatch next upcoming {Team} match
+
 AMAZON.StopIntent no
 AMAZON.StopIntent nope
 AMAZON.StopIntent no thanks

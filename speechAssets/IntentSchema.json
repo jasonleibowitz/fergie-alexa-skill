@@ -1,19 +1,22 @@
 {
-  "intents": [
-    {
-      "intent": "GetLeagueTableIntent"
-    },
-    {
+    "intents": [{
+        "intent": "GetLeagueTableIntent"
+    }, {
         "intent": "GetNextTableIntent"
+    }, {
+        "intent": "GetNextMatch",
+        "slots": [
+            {
+                "name": "Team",
+                "type": "LIST_OF_TEAMS"
+            }
+        ]
     },
     {
-      "intent": "AMAZON.HelpIntent"
-    },
-    {
-      "intent": "AMAZON.StopIntent"
-    },
-    {
-      "intent": "AMAZON.CancelIntent"
-    }
-  ]
- }
+        "intent": "AMAZON.HelpIntent"
+    }, {
+        "intent": "AMAZON.StopIntent"
+    }, {
+        "intent": "AMAZON.CancelIntent"
+    }]
+}

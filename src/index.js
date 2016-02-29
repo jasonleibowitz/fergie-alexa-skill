@@ -1,12 +1,30 @@
 var APP_ID = "amzn1.echo-sdk-ams.app.aab15ddb-1a64-4250-962d-6a8d8c038e64";
 var POSITION_KEY = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "last"];
+var MONTH_KEY = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+var TEAMS = {
+    'arsenal': 57,
+    'aston villa': 58,
+    'chelsea': 60,
+    'everton': 62,
+    'liverpool': 64,
+    'manchester city': 65,
+    'manchester united': 66,
+    'newcastle': 67,
+    'norwich': 68,
+    'stoke': 70,
+    'sunderland': 71,
+    'swansea': 72,
+    'tottenham hotsput': 73,
+    'west bromwich albion': 74
+};
 
 var AlexaSkill = require('./AlexaSkill');
 var http = require('http');
+var alexaDateUtil = require('./alexaDateUtil');
 var Fergie = function() {
     AlexaSkill.call(this, APP_ID);
 };
-var urlPrefix = 'http://api.football-data.org/v1/soccerseasons/398/leagueTable';
+var urlPrefix = 'http://api.football-data.org/v1/';
 var paginationSize = 4;
 
 Fergie.prototype = Object.create(AlexaSkill.prototype);
@@ -32,6 +50,10 @@ Fergie.prototype.intentHandlers = {
 
     "GetNextTableIntent": function(intent, session, response) {
         handleNextTableRequest(intent, session, response);
+    },
+
+    "GetNextMatch": function(intent, session, response) {
+        handleGetNextMatchRequest(intent, session, response);
     },
 
     "AMAZON.HelpIntent": function(intent, session, response) {
@@ -87,7 +109,7 @@ function handleLeagueTableRequest(intent, session, response) {
         } else {
             for (i = 0; i < paginationSize; i++) {
                 cardContent = cardContent + table[i].teamName + ' ';
-                speechText = "<p>" + speechText + "In " + POSITION_KEY[i] + " place is " +  table[i].teamName + " with " + table[i].points + " points.</p>";
+                speechText = "<p>" + speechText + "In " + POSITION_KEY[i] + " place is " +  cleanTeamName(table[i].teamName) + " with " + table[i].points + " points.</p>";
             }
             speechText = speechText + " <p>Want to hear more?</p>";
             var speechOutput = {
@@ -123,7 +145,7 @@ function handleNextTableRequest(intent, session, response) {
     } else {
         for (i = sessionAttributes.start; i < sessionAttributes.index; i++) {
             cardContent = cardContent + sessionAttributes.table[i].teamName + ' ';
-            speechText = "<p>" + speechText + "In " + POSITION_KEY[i] + " place is " + sessionAttributes.table[i].teamName + " with " + session.attributes.table[i].points + " points.</p>";
+            speechText = "<p>" + speechText + "In " + POSITION_KEY[i] + " place is " + cleanTeamName(sessionAttributes.table[i].teamName) + " with " + session.attributes.table[i].points + " points.</p>";
         }
         if (sessionAttributes.index < 20) speechText = speechText + "<p>Want to hear more?</p>";
         var speechOutput = {
@@ -142,8 +164,83 @@ function handleNextTableRequest(intent, session, response) {
     }
 }
 
+function handleGetNextMatchRequest(intent, session, response) {
+    // Determine team name
+    var teamObj = getTeamFromIntent(intent, true),
+        repromptText,
+        speechOutput;
+
+    if (teamObj.error) {
+        // invalid team, move to dialog
+        response.tell('error', 'error', 'error', 'error');
+    }
+
+    getMatchFromAPI(teamObj.teamID, function(fixtures) {
+        var matchDate = new Date(fixtures[0].date);
+        var homeTeam = cleanTeamName(fixtures[0].homeTeamName);
+        var awayTeam = cleanTeamName(fixtures[0].awayTeamName);
+        var speechText;
+
+        if (fixtures.length > 0) {
+            if (teamObj.team == homeTeam) {
+                speechText = homeTeam + "'s next match is at home against " + awayTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate);
+            } else {
+                speechText = awayTeam + " is playing at " + homeTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate);
+            }
+        } else {
+            speechText = homeTeam + " has no matches in the next two weeks.";
+        }
+
+
+        var speechOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.SSML
+        };
+        var repromptOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.PLAIN_TEXT
+        };
+        response.tell(speechOutput, repromptOutput);
+
+    })
+}
+
+// Gets team from intent or returns an error
+function getTeamFromIntent(intent, assignDefault) {
+    var teamSlot = intent.slots.Team;
+
+    // slots can be missing or provided with an empty value. must test for both
+    if (!teamSlot || !teamSlot.value) {
+        if (!assignDefault) {
+            return {
+                error: true
+            }
+        } else {
+            return {
+                team: 'manchester united',
+                teamID: TEAMS['manchester united']
+            }
+        }
+    } else {
+        // lookup the team.
+        var teamName = teamSlot.value;
+        if (TEAMS[teamName.toLowerCase()]) {
+            return {
+                team: teamName,
+                teamID: TEAMS[teamName.toLowerCase()]
+            }
+        } else {
+            return {
+                error: true,
+                team: teamName
+            }
+        }
+    }
+}
+
 function getTableFromAPI(eventCallback) {
-    http.get(urlPrefix, function(res) {
+    var urlSuffix = 'soccerseasons/398/leagueTable';
+    http.get(urlPrefix + urlSuffix, function(res) {
         var body = '';
 
         res.on('data', function(chunk) {
@@ -158,6 +255,27 @@ function getTableFromAPI(eventCallback) {
         console.log("Got error: ", e);
     });
 };
+
+function getMatchFromAPI(teamID, eventCallback) {
+    http.get(urlPrefix + 'teams/' + teamID + '/fixtures?timeFrame=n14' , function(res) {
+        var body = '';
+
+        res.on('data', function(chunk) {
+            body += chunk;
+        });
+
+        res.on('end', function() {
+            var json = JSON.parse(body);
+            eventCallback(json['fixtures']);
+        });
+    }).on('error', function(e) {
+        console.log('Got error ', e);
+    });
+};
+
+function cleanTeamName(teamString) {
+    return teamString.replace(/(fc)/gi, '').trim();
+}
 
 // Create the handler that responds to the Alexa Request
 exports.handler = function(event, context) {
