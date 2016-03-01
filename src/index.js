@@ -4,18 +4,25 @@ var MONTH_KEY = ["January", "February", "March", "April", "May", "June", "July",
 var TEAMS = {
     'arsenal': 57,
     'aston villa': 58,
+    'villa': 58,
     'chelsea': 60,
     'everton': 62,
     'liverpool': 64,
     'manchester city': 65,
+    'man city': 65,
     'manchester united': 66,
+    'man united': 66,
     'newcastle': 67,
     'norwich': 68,
     'stoke': 70,
+    'stoke city': 70,
     'sunderland': 71,
     'swansea': 72,
-    'tottenham hotsput': 73,
-    'west bromwich albion': 74
+    'tottenham hotspur': 73,
+    'tottenham': 73,
+    'spurs': 73,
+    'west bromwich albion': 74,
+    'west brom': 74
 };
 
 var AlexaSkill = require('./AlexaSkill');
@@ -183,9 +190,9 @@ function handleGetNextMatchRequest(intent, session, response) {
 
         if (fixtures.length > 0) {
             if (teamObj.team == homeTeam) {
-                speechText = homeTeam + "'s next match is at home against " + awayTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate);
+                speechText = homeTeam + "'s next match is at home against " + awayTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate) + " Greenwich Time";
             } else {
-                speechText = awayTeam + " is playing at " + homeTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate);
+                speechText = awayTeam + " is playing at " + homeTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate) + " Greenwich Time";
             }
         } else {
             speechText = homeTeam + " has no matches in the next two weeks.";
