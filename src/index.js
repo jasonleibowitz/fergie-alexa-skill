@@ -194,9 +194,9 @@ function handleGetNextMatchRequest(intent, session, response) {
 
         if (fixtures.length > 0) {
             if (teamObj.team == homeTeam) {
-                speechText = homeTeam + "'s next match is at home against " + awayTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate) + " Greenwich Time";
+                speechText = homeTeam + "'s next match is at home against " + awayTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate) + " Greenwich Mean Time";
             } else {
-                speechText = awayTeam + " is playing at " + homeTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate) + " Greenwich Time";
+                speechText = awayTeam + " is playing at " + homeTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate) + " Greenwich Mean Time";
             }
         } else {
             speechText = homeTeam + " has no matches in the next two weeks.";
