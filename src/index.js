@@ -63,6 +63,10 @@ Fergie.prototype.intentHandlers = {
         handleGetNextMatchRequest(intent, session, response);
     },
 
+    "GetMatchResult": function(intent, session, response) {
+        handleGetMatchResultRequest(intent, session, response);
+    },
+
     "AMAZON.HelpIntent": function(intent, session, response) {
         response.ask("Ask League Table to tell you the league table, or you can say exit.");
     },
@@ -212,6 +216,63 @@ function handleGetNextMatchRequest(intent, session, response) {
     })
 }
 
+function handleGetMatchResultRequest(intent, session, response) {
+    // Determine team name
+    var teamObj = getTeamFromIntent(intent, true),
+        repromptText,
+        speechOutput;
+
+    if (teamObj.error) {
+        // invalid team name, move to dialog
+        response.tell('invalid team name', 'invalid team name');
+    }
+
+    getMatchResultFromAPI(teamObj.teamID, function(fixtures) {
+        var speechText;
+
+        if (fixtures.length > 0) {
+            var matchDate = new Date(fixtures[0].date);
+            var homeTeam = fixtures[0].homeTeamName;
+            var awayTeam = fixtures[0].awayTeamName;
+            var homeTeamGoals = fixtures[0].result.goalsHomeTeam;
+            var awayTeamGoals = fixtures[0].result.goalsAwayTeam;
+            console.log('matchDate: ', matchDate);
+            console.log('API Date: ', fixtures[0].date);
+
+            if (homeTeamGoals > awayTeamGoals) {
+                speechText = cleanTeamName(homeTeam) + " beat " + cleanTeamName(awayTeam) + " by " + homeTeamGoals + " goals to " + awayTeamGoals + " on " + alexaDateUtil.getFormattedDate(matchDate) + ".";
+            } else if (homeTeamGoals < awayTeamGoals) {
+                speechText = cleanTeamName(awayTeam) + " triumphed over " + cleanTeamName(homeTeam) + " " + awayTeamGoals + " to " + homeTeamGoals + " on " + alexaDateUtil.getFormattedDate(matchDate) + ".";
+            } else {
+                speechText = cleanTeamName(homeTeam) + " drew to " + cleanTeamName(awayTeam) + ", " + homeTeamGoals + " a piece on " +  alexaDateUtil.getFormattedDate(matchDate) + ".";
+            }
+        } else {
+            speechText = "No matches in the last fortnight.";
+        }
+
+        var speechOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.SSML
+        };
+        var repromptOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.PLAIN_TEXT
+        };
+        response.tell(speechOutput, repromptOutput);
+
+
+        if (fixtures.length > 0) {
+            if (teamObj.team == homeTeam) {
+                // speechText = homeTeam + "'s next match is at home against " + awayTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate) + " Greenwich Time";
+            } else {
+                speechText = awayTeam + " is playing at " + homeTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate) + " Greenwich Time";
+            }
+        } else {
+            speechText = homeTeam + " has no matches in the next two weeks.";
+        }
+    })
+}
+
 // Gets team from intent or returns an error
 function getTeamFromIntent(intent, assignDefault) {
     var teamSlot = intent.slots.Team;
@@ -233,7 +294,7 @@ function getTeamFromIntent(intent, assignDefault) {
         var teamName = teamSlot.value;
         if (TEAMS[teamName.toLowerCase()]) {
             return {
-                team: teamName,
+                team: teamName.toLowerCase(),
                 teamID: TEAMS[teamName.toLowerCase()]
             }
         } else {
@@ -280,8 +341,25 @@ function getMatchFromAPI(teamID, eventCallback) {
     });
 };
 
+function getMatchResultFromAPI(teamID, eventCallback) {
+    http.get(urlPrefix + 'teams/' + teamID + '/fixtures?timeFrame=p14', function(res) {
+        var body = '';
+
+        res.on('data', function(chunk) {
+            body += chunk;
+        });
+
+        res.on('end', function() {
+            var json = JSON.parse(body);
+            eventCallback(json['fixtures']);
+        });
+    }).on('error', function(e) {
+        console.log('Got error ', e);
+    });
+}
+
 function cleanTeamName(teamString) {
-    return teamString.replace(/(fc)/gi, '').trim();
+    return teamString.replace(/(fc)/gi, '').trim().toLowerCase();
 }
 
 // Create the handler that responds to the Alexa Request
