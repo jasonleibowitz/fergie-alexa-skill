@@ -12,6 +12,7 @@ GetNextMatch next {Team} match
 GetNextMatch next upcoming {Team} match
 
 GetMatchResult {Team} result
+GetMatchResult last {Team} result
 GetMatchResult result of last {Team} match
 GetMatchResult what was the result of the {Team} match
 
