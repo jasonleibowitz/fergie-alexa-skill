@@ -26,3 +26,41 @@ To install this skill on your own Amazon Echo clone the repo and follow the inst
 12. Leave the advanced options alone.
 13. On the review page, make sure that the event source is Alexa.
 14. Click create function to save your new function.  -->
+
+## Usage
+
+Fergie supports three functions:
+
+* Announcing the league table four teams at a time
+* Telling the user the next match info for a given team name
+* Telling the user the result of the last match for a given team named
+
+To get league table info say:
+
+```
+"Alexa, ask fergie for the league table"
+
+or
+
+"Alexa, ask fergie who's leading the league"
+```
+
+To get the next Man United match say:
+
+```
+"Alexa, ask fergie when is the next Man United match"
+
+or
+
+"Alexa, ask fergie for the next Man United match"
+```
+
+To get the last result for Man United say:
+
+```
+"Alexa, ask fergie for the Man United result"
+
+or
+
+"Alexa, ask fergie what was the result of the Man United match"
+```
