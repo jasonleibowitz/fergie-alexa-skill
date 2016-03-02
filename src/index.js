@@ -80,9 +80,9 @@ Fergie.prototype.intentHandlers = {
 
 function getWelcomeResponse(response) {
     var cardTitle = "Welcome to Fergie";
-    var repromptText = "With Fergie, you can get all kinds of information on the English Premier League. Ask me about the current league table, what matches are on this week, when the next match for a particular team is, or what the score of the last match for a particular team was.";
-    var speechText = "<p>Welcome to football season. How can I help you?<p>";
-    var cardOutput = "Welcome to football season. How can I help you?";
+    var repromptText = "Welcome to Fergie. Here are some examples of what you can ask: league table, when is the next man united match, man united result. Which will it be?";
+    var speechText = "<p>Welcome to Fergie. Here are some examples of what you can ask: league table, when is the next man united match, man united result. Which will it be?</p>";
+    var cardOutput = "Welcome to Fergie. Here are some examples of what you can ask: league table, when is the next man united match, man united result. Which will it be?";
 
     var speechOutput = {
         speech: "<speak>" + speechText + "</speak>",
@@ -96,12 +96,13 @@ function getWelcomeResponse(response) {
 }
 
 function handleLeagueTableRequest(intent, session, response) {
-    var repromptText = "With Fergie, you can get all kinds of information on the English Premier League. Ask me about the current league table, what matches are on this week, when the next match for a particular team is, or what the score of the last match for a particular team was.";
+    var repromptText = "Do you want to hear the next four teams in the Premier League table? Say yes or no.";
     var sessionAttributes = {};
     sessionAttributes.index = paginationSize;
+    sessionAttributes.sessionId = session.sessionId;
 
-    var prefixContent = "<p>The top four of the Premier League Table are: </p>";
-    var cardContent = "The top four of the Premier League Table are: ";
+    var prefixContent = "The top four of the Premier League Table are: ";
+    var cardContent = "";
     var cardTitle = "Premier League Table: Top 4";
 
     getTableFromAPI(function(table) {
@@ -115,12 +116,12 @@ function handleLeagueTableRequest(intent, session, response) {
             response.tell(speechText);
         } else {
             for (i = 0; i < paginationSize; i++) {
-                cardContent = cardContent + table[i].teamName + ' ';
-                speechText = "<p>" + speechText + "In " + POSITION_KEY[i] + " place is " +  cleanTeamName(table[i].teamName) + " with " + table[i].points + " points.</p>";
+                cardContent = cardContent + table[i].teamName + ' (' + table[i].points + ') ';
+                speechText = speechText + "In " + POSITION_KEY[i] + " place is " +  cleanTeamName(table[i].teamName) + " with " + table[i].points + " points. ";
             }
-            speechText = speechText + " <p>Want to hear more?</p>";
+            speechText = speechText + " Want to hear more?";
             var speechOutput = {
-                speech: "<speak>" + prefixContent + speechText + "</speak>",
+                speech: "<speak><p>" + prefixContent + speechText + "</p></speak>",
                 type: AlexaSkill.speechOutputType.SSML
             };
             var repromptOutput = {
@@ -133,41 +134,47 @@ function handleLeagueTableRequest(intent, session, response) {
 }
 
 function handleNextTableRequest(intent, session, response) {
-    var repromptText = "With Fergie, you can get all kinds of information on the English Premier League. Ask me about the current league table, what matches are on this week, when the next match for a particular team is, or what the score of the last match for a particular team was.";
-    var sessionAttributes = {};
-    sessionAttributes.start = session.attributes.index > 0 ? session.attributes.index : 0;
-    sessionAttributes.index = session.attributes.index > 0 ? session.attributes.index + paginationSize : paginationSize;
-    sessionAttributes.table = session.attributes.table;
-    session.attributes = sessionAttributes;
-    var prefixContent = sessionAttributes.index < 16 ? "<p>The next four of the Premier League Table are: </p>" : "<p>The bottom of the table are: </p>";
-    var cardContent = "The next four of the Premier League Table are: ";
-    var cardTitle = "Premier League Table: " + sessionAttributes.index + 1 + " - " + sessionAttributes.index + 5;
-    var speechText = "";
-    var i;
+    if (session.attributes.sessionId === session.sessionId) {
+        var repromptText = "With Fergie, you can get all kinds of information on the English Premier League. Ask me about the current league table, what matches are on this week, when the next match for a particular team is, or what the score of the last match for a particular team was.";
+        var sessionAttributes = {};
+        sessionAttributes.start = session.attributes.index > 0 ? session.attributes.index : 0;
+        sessionAttributes.index = session.attributes.index > 0 ? session.attributes.index + paginationSize : paginationSize;
+        sessionAttributes.table = session.attributes.table;
+        session.attributes = sessionAttributes;
+        var prefixContent = sessionAttributes.index < 16 ? "<p>The next four of the Premier League Table are: </p>" : "<p>The bottom of the table are: </p>";
+        var cardContent = "The next four of the Premier League Table are: ";
+        var cardTitle = "Premier League Table: " + sessionAttributes.index + 1 + " - " + sessionAttributes.index + 5;
+        var speechText = "";
+        var i;
 
-    if (sessionAttributes.table == 0) {
-        speechText = "There is a problem connecting to the API. Please try again later.";
-        cardContent = speechText;
-        response.tell(speechText);
-    } else {
-        for (i = sessionAttributes.start; i < sessionAttributes.index; i++) {
-            cardContent = cardContent + sessionAttributes.table[i].teamName + ' ';
-            speechText = "<p>" + speechText + "In " + POSITION_KEY[i] + " place is " + cleanTeamName(sessionAttributes.table[i].teamName) + " with " + session.attributes.table[i].points + " points.</p>";
-        }
-        if (sessionAttributes.index < 20) speechText = speechText + "<p>Want to hear more?</p>";
-        var speechOutput = {
-            speech: "<speak>" + prefixContent + speechText + "</speak>",
-            type: AlexaSkill.speechOutputType.SSML
-        };
-        var repromptOutput = {
-            speech: repromptText,
-            type: AlexaSkill.speechOutputType.PLAIN_TEXT
-        };
-        if (sessionAttributes.start < 16) {
-            response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
+        if (sessionAttributes.table == 0) {
+            speechText = "There is a problem connecting to the API. Please try again later.";
+            cardContent = speechText;
+            response.tell(speechText);
         } else {
-            response.tell(speechOutput, repromptOutput, cardTitle, cardContent);
+            for (i = sessionAttributes.start; i < sessionAttributes.index; i++) {
+                cardContent = cardContent + sessionAttributes.table[i].teamName + ' ';
+                speechText = "<p>" + speechText + "In " + POSITION_KEY[i] + " place is " + cleanTeamName(sessionAttributes.table[i].teamName) + " with " + session.attributes.table[i].points + " points.</p>";
+            }
+            if (sessionAttributes.index < 20) speechText = speechText + "<p>Want to hear more?</p>";
+            var speechOutput = {
+                speech: "<speak>" + prefixContent + speechText + "</speak>",
+                type: AlexaSkill.speechOutputType.SSML
+            };
+            var repromptOutput = {
+                speech: repromptText,
+                type: AlexaSkill.speechOutputType.PLAIN_TEXT
+            };
+            if (sessionAttributes.start < 16) {
+                response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
+            } else {
+                response.tell(speechOutput, repromptOutput, cardTitle, cardContent);
+            }
         }
+    } else {
+        // in a different session
+        session.attributes = {};
+        response.tell("Sorry, but your session expired. Please try again.");
     }
 }
 
@@ -212,6 +219,64 @@ function handleGetNextMatchRequest(intent, session, response) {
     })
 }
 
+<<<<<<< Updated upstream
+=======
+function handleGetMatchResultRequest(intent, session, response) {
+    // Determine team name
+    var teamObj = getTeamFromIntent(intent, true),
+        repromptText,
+        speechOutput;
+
+    if (teamObj.error) {
+        // invalid team name, move to dialog
+        response.tell('invalid team name', 'invalid team name');
+    }
+
+    getMatchResultFromAPI(teamObj.teamID, function(fixtures) {
+        var speechText;
+
+        if (fixtures.length > 0) {
+            var matchDate = new Date(fixtures[0].date);
+            var homeTeam = fixtures[0].homeTeamName;
+            var awayTeam = fixtures[0].awayTeamName;
+            var homeTeamGoals = fixtures[0].result.goalsHomeTeam;
+            var awayTeamGoals = fixtures[0].result.goalsAwayTeam;
+
+            if (homeTeamGoals > awayTeamGoals) {
+                speechText = cleanTeamName(homeTeam) + " beat " + cleanTeamName(awayTeam) + " by " + homeTeamGoals + " goals to " + awayTeamGoals + " on " + alexaDateUtil.getFormattedDate(matchDate) + ".";
+            } else if (homeTeamGoals < awayTeamGoals) {
+                speechText = cleanTeamName(awayTeam) + " triumphed over " + cleanTeamName(homeTeam) + " " + awayTeamGoals + " to " + homeTeamGoals + " on " + alexaDateUtil.getFormattedDate(matchDate) + ".";
+            } else {
+                speechText = cleanTeamName(homeTeam) + " drew to " + cleanTeamName(awayTeam) + ", " + homeTeamGoals + " a piece on " +  alexaDateUtil.getFormattedDate(matchDate) + ".";
+            }
+        } else {
+            speechText = "No matches in the last fortnight.";
+        }
+
+        var speechOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.SSML
+        };
+        var repromptOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.PLAIN_TEXT
+        };
+        response.tell(speechOutput, repromptOutput);
+
+
+        if (fixtures.length > 0) {
+            if (teamObj.team == homeTeam) {
+                // speechText = homeTeam + "'s next match is at home against " + awayTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate) + " Greenwich Time";
+            } else {
+                speechText = awayTeam + " is playing at " + homeTeam + " on " + alexaDateUtil.getFormattedDate(matchDate) + " at " + alexaDateUtil.getFormattedTime(matchDate) + " Greenwich Time";
+            }
+        } else {
+            speechText = homeTeam + " has no matches in the next two weeks.";
+        }
+    })
+}
+
+>>>>>>> Stashed changes
 // Gets team from intent or returns an error
 function getTeamFromIntent(intent, assignDefault) {
     var teamSlot = intent.slots.Team;
