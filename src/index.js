@@ -219,8 +219,6 @@ function handleGetNextMatchRequest(intent, session, response) {
     })
 }
 
-<<<<<<< Updated upstream
-=======
 function handleGetMatchResultRequest(intent, session, response) {
     // Determine team name
     var teamObj = getTeamFromIntent(intent, true),
@@ -276,7 +274,6 @@ function handleGetMatchResultRequest(intent, session, response) {
     })
 }
 
->>>>>>> Stashed changes
 // Gets team from intent or returns an error
 function getTeamFromIntent(intent, assignDefault) {
     var teamSlot = intent.slots.Team;
