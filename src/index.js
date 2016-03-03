@@ -68,7 +68,21 @@ Fergie.prototype.intentHandlers = {
     },
 
     "AMAZON.HelpIntent": function(intent, session, response) {
-        response.ask("Ask League Table to tell you the league table, or you can say exit.");
+        var speechText = "<p>Fergie can provide you with all kinds of information on the English Premier League. You can ask me what is the league table, when is the next man united match, what was the result of the last man united match. Of course you can substitute man united for any Premier League Club. WHich will it be?</p>"
+        var repromptText = "<p>Fergie can provide you with all kinds of information on the English Premier League. You can ask me what is the league table, when is the next man united match, what was the result of the last man united match. Of course you can substitute man united for any Premier League Club. WHich will it be? You can look in your Alexa app for more information.</p>"
+        var cardTitle = "Fergie Premier League Info";
+        var cardContent = "Fergie can provide you with all kinds of information on the English Premier League. You can ask me what is the league table, when is the next man united match, what was the result of the last man united match. Of course you can substitute man united for any Premier League Club. WHich will it be?";
+
+        var speechOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.SSML
+        };
+        var repromptOutput = {
+            speech: repromptText,
+            type: AlexaSkill.speechOutputType.PLAIN_TEXT
+        };
+
+        response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
     },
 
     "AMAZON.StopIntent": function(intent, session, response) {
@@ -193,7 +207,14 @@ function handleGetNextMatchRequest(intent, session, response) {
         var speechText = "<p>I don't have information for " + intent.slots.Team.value + ". I currently only support Premier League clubs.</p>";
         var cardTitle = "Invalid Team Name";
         var cardContent = 'I dont\'t have information for ' + intent.slots.Team.value + ". I currently only support Premier League clubs.";
-        response.tellWithCard(speechText, cardTitle, cardContent);
+
+
+        var speechOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.SSML
+        };
+
+        response.tellWithCard(speechOutput, cardTitle, cardContent);
     }
 
     getMatchFromAPI(teamObj.teamID, function(fixtures) {
@@ -237,7 +258,13 @@ function handleGetMatchResultRequest(intent, session, response) {
         var speechText = "<p>I don't have information for " + intent.slots.Team.value + ". I currently only support Premier League clubs.</p>";
         var cardTitle = "Invalid Team Name";
         var cardContent = "I don't have information for " + intent.slots.Team.value + ". I currently only support Premier League clubs.";
-        response.tellWithCard(speechText, cardTitle, cardContent);
+
+        var speechOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.SSML
+        };
+
+        response.tellWithCard(speechOutput, cardTitle, cardContent);
     }
 
     getMatchResultFromAPI(teamObj.teamID, function(fixtures) {
