@@ -84,9 +84,9 @@ Fergie.prototype.intentHandlers = {
 
 function getWelcomeResponse(response) {
     var cardTitle = "Welcome to Fergie";
-    var repromptText = "Welcome to Fergie. Here are some examples of what you can ask: league table, when is the next man united match, man united result. Which will it be?";
-    var speechText = "<p>Welcome to Fergie. Here are some examples of what you can ask: league table, when is the next man united match, man united result. Which will it be?</p>";
-    var cardOutput = "Welcome to Fergie. Here are some examples of what you can ask: league table, when is the next man united match, man united result. Which will it be?";
+    var speechText = "<p>Welcome to Fergie. You can ask me what is the league table, when is the next man united match, what was the result of the last man united match. Of course you can substitute man united for any Premier League club. Which will it be?</p>"
+    var repromptText = "Welcome to Fergie. You can ask me what is the league table, when is the next man united match, what was the result of the last man united match. Of course you can substitute man united for any Premier League club. Which will it be?";
+    var cardOutput = "elcome to Fergie. You can ask me what is the league table, when is the next man united match, what was the result of the last man united match. Of course you can substitute man united for any Premier League club. Which will it be?";
 
     var speechOutput = {
         speech: "<speak>" + speechText + "</speak>",
@@ -190,7 +190,10 @@ function handleGetNextMatchRequest(intent, session, response) {
 
     if (teamObj.error) {
         // invalid team, move to dialog
-        response.tell('error', 'error', 'error', 'error');
+        var speechText = "<p>I don't have information for " + intent.slots.Team.value + ". I currently only support Premier League clubs.</p>";
+        var cardTitle = "Invalid Team Name";
+        var cardContent = 'I dont\'t have information for ' + intent.slots.Team.value + ". I currently only support Premier League clubs.";
+        response.tellWithCard(speechText, cardTitle, cardContent);
     }
 
     getMatchFromAPI(teamObj.teamID, function(fixtures) {
@@ -231,7 +234,10 @@ function handleGetMatchResultRequest(intent, session, response) {
 
     if (teamObj.error) {
         // invalid team name, move to dialog
-        response.tell('invalid team name', 'invalid team name');
+        var speechText = "<p>I don't have information for " + intent.slots.Team.value + ". I currently only support Premier League clubs.</p>";
+        var cardTitle = "Invalid Team Name";
+        var cardContent = "I don't have information for " + intent.slots.Team.value + ". I currently only support Premier League clubs.";
+        response.tellWithCard(speechText, cardTitle, cardContent);
     }
 
     getMatchResultFromAPI(teamObj.teamID, function(fixtures) {

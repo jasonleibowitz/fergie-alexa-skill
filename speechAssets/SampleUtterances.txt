@@ -1,6 +1,11 @@
 GetLeagueTableIntent league table
-GetLeagueTableIntent what's the league table
 GetLeagueTableIntent tell me the league table
+GetLeagueTableIntent current league table
+GetLeagueTableIntent tell me the current league table
+GetLeagueTableIntent what's the league table
+GetLeagueTableIntent what is the league table
+GetLeagueTableIntent what is the current league table
+GetLeagueTableIntent what's the current league table
 GetLeagueTableIntent who's leading the league
 
 GetNextTableIntent yes
@@ -8,13 +13,24 @@ GetNextTableIntent yup
 GetNextTableIntent ok
 
 GetNextMatch when is the next {Team} match
+GetNextMatch when is the next match for {Team}
 GetNextMatch next {Team} match
 GetNextMatch next upcoming {Team} match
 
 GetMatchResult {Team} result
+GetMatchResult for the {Team} result
+GetMatchResult for the {Team} score
 GetMatchResult last {Team} result
+GetMatchResult for the last {Team} result
+GetMatchResult for the last {Team} score
 GetMatchResult result of last {Team} match
 GetMatchResult what was the result of the {Team} match
+GetMatchResult tell me the {Team} result
+GetMatchResult what's the {Team} result
+GetMatchResult what is the {Team} result
+GetMatchResult what's the {Team} score
+GetMatchResult what is the {Team} score
+GetMatchResult who won the last {Team} match
 
 AMAZON.StopIntent no
 AMAZON.StopIntent nope
