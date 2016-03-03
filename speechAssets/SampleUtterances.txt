@@ -16,6 +16,7 @@ GetNextMatch when is the next {Team} match
 GetNextMatch when is the next match for {Team}
 GetNextMatch next {Team} match
 GetNextMatch next upcoming {Team} match
+GetNextMatch for the next {Team} match
 
 GetMatchResult {Team} result
 GetMatchResult for the {Team} result
@@ -36,3 +37,7 @@ AMAZON.StopIntent no
 AMAZON.StopIntent nope
 AMAZON.StopIntent no thanks
 AMAZON.StopIntent no thank you
+AMAZON.StopIntent exit
+AMAZON.StopIntent good bye
+AMAZON.StopIntent stop
+AMAZON.StopIntent enough
