@@ -22,7 +22,14 @@ var TEAMS = {
     'tottenham': 73,
     'spurs': 73,
     'west bromwich albion': 74,
-    'west brom': 74
+    'west brom': 74,
+    'bournemouth': 1044,
+    'watford': 346,
+    'leicester': 338,
+    'crystal palace': 354,
+    'southampton': 340,
+    'west ham united': 563,
+    'west ham': 563
 };
 
 var AlexaSkill = require('./AlexaSkill');
@@ -271,11 +278,11 @@ function handleGetMatchResultRequest(intent, session, response) {
         var speechText;
 
         if (fixtures.length > 0) {
-            var matchDate = new Date(fixtures[0].date);
-            var homeTeam = fixtures[0].homeTeamName;
-            var awayTeam = fixtures[0].awayTeamName;
-            var homeTeamGoals = fixtures[0].result.goalsHomeTeam;
-            var awayTeamGoals = fixtures[0].result.goalsAwayTeam;
+            var matchDate = new Date(fixtures[fixtures.length - 1].date);
+            var homeTeam = fixtures[fixtures.length - 1].homeTeamName;
+            var awayTeam = fixtures[fixtures.length - 1].awayTeamName;
+            var homeTeamGoals = fixtures[fixtures.length - 1].result.goalsHomeTeam;
+            var awayTeamGoals = fixtures[fixtures.length - 1].result.goalsAwayTeam;
 
             if (homeTeamGoals > awayTeamGoals) {
                 speechText = cleanTeamName(homeTeam) + " beat " + cleanTeamName(awayTeam) + " by " + homeTeamGoals + " goals to " + awayTeamGoals + " on " + alexaDateUtil.getFormattedDate(matchDate) + ".";

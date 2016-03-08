@@ -1,4 +1,5 @@
 GetLeagueTableIntent league table
+GetLeagueTableIntent the league table
 GetLeagueTableIntent tell me the league table
 GetLeagueTableIntent current league table
 GetLeagueTableIntent tell me the current league table
@@ -19,6 +20,7 @@ GetNextMatch next upcoming {Team} match
 GetNextMatch for the next {Team} match
 
 GetMatchResult {Team} result
+GetMatchResult the {Team} result
 GetMatchResult for the {Team} result
 GetMatchResult for the {Team} score
 GetMatchResult last {Team} result
