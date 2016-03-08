@@ -404,7 +404,7 @@ function getMatchResultFromAPI(teamID, eventCallback) {
 }
 
 function cleanTeamName(teamString) {
-    return teamString.replace(/(fc)/gi, '').trim().toLowerCase();
+    return teamString.replace(/(fc|afc)/gi, '').trim().toLowerCase();
 }
 
 // Create the handler that responds to the Alexa Request
