@@ -26,6 +26,7 @@ var TEAMS = {
     'bournemouth': 1044,
     'watford': 346,
     'leicester': 338,
+    'leicester city': 338,
     'crystal palace': 354,
     'southampton': 340,
     'west ham united': 563,
