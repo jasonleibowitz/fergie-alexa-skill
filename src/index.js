@@ -108,7 +108,7 @@ function getWelcomeResponse(response) {
     var cardTitle = "Welcome to Fergie";
     var speechText = "<p>Welcome to Fergie. You can ask me what is the league table, when is the next man united match, what was the result of the last man united match. Of course you can substitute man united for any Premier League club. Which will it be?</p>"
     var repromptText = "Welcome to Fergie. You can ask me what is the league table, when is the next man united match, what was the result of the last man united match. Of course you can substitute man united for any Premier League club. Which will it be?";
-    var cardOutput = "elcome to Fergie. You can ask me what is the league table, when is the next man united match, what was the result of the last man united match. Of course you can substitute man united for any Premier League club. Which will it be?";
+    var cardOutput = "Welcome to Fergie. You can ask me what is the league table, when is the next man united match, what was the result of the last man united match. Of course you can substitute man united for any Premier League club. Which will it be?";
 
     var speechOutput = {
         speech: "<speak>" + speechText + "</speak>",
